@@ -1,9 +1,9 @@
 """
-  VOID — RFID Attendance Intelligence  ✦ Space Edition ✦
-  ─────────────────────────────────────────────────────────
+  AURA — RFID Attendance Intelligence  ◆ Linear Edition ◆
+  ──────────────────────────────────────────────────────
   Stack  : Python · Firebase RTDB · firebase-admin · Streamlit
-  Theme  : Deep Space — Void black, nebula violet, stellar gold
-  Build  : 3.4.0 — Space Edition
+  Theme  : Linear.app Clone — Precision, Borders, Inter Typography
+  Build  : 4.0.0 — Linear Edition
 """
 
 import streamlit as st
@@ -26,199 +26,626 @@ RFID_LOG_NODE        = "rfid_logs"
 AUTO_REFRESH_SECONDS = 6
 
 st.set_page_config(
-    page_title="Void — Space Intelligence",
-    page_icon="✦",
+    page_title="Aura — Attendance",
+    page_icon="◆",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-THEME_CSS = """
+LINEAR_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ═══════════════════════════════════════════════════════════
+   THE ARCHITECTURAL CANVAS — LINEAR'S LAYERED DARKNESS
+   ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Deep Space / Nebula Palette ── */
-  --bg-base:            #03020a;
-  --bg-elevated:        #07051a;
-  --bg-card:            rgba(120, 80, 220, 0.07);
-  --bg-card-hover:      rgba(140, 100, 240, 0.12);
-  --bg-input:           rgba(120, 80, 220, 0.09);
-
-  --border-subtle:      rgba(160, 100, 255, 0.08);
-  --border-moderate:    rgba(160, 100, 255, 0.16);
-  --border-strong:      rgba(180, 120, 255, 0.38);
-
-  --text-primary:       #e8e0ff;
-  --text-secondary:     #6050a0;
-  --text-tertiary:      #302848;
-
-  --accent:             #b06aff;
-  --accent-dim:         rgba(176,106,255,0.12);
-  --accent-glow:        0 0 24px rgba(176,106,255,0.18), 0 0 60px rgba(100,50,200,0.08);
-
-  /* Stellar gold for ok status — stars */
-  --status-ok:          #ffd166;
-  --status-ok-dim:      rgba(255,209,102,0.09);
-  --status-denied:      #ff4560;
-  --status-denied-dim:  rgba(255,69,96,0.09);
-  --status-unknown:     #3a2860;
-  --status-unknown-dim: rgba(58,40,96,0.20);
-
-  --radius-sm:10px; --radius-md:14px; --radius-lg:18px; --radius-xl:24px;
-  --ease:cubic-bezier(0.25,0.46,0.45,0.94);
-  --ease-warp:cubic-bezier(0.16,1,0.3,1);
-  --dur-fast:140ms; --dur-base:280ms; --dur-slow:520ms;
-  --font:'Inter',-apple-system,'Helvetica Neue',sans-serif;
+  /* The Void — Strictly Layered Dark Palette */
+  --bg-workspace:       #0a0a0a;  /* The absolute base */
+  --bg-surface:         #111111;  /* Card/panel level */
+  --bg-overlay:         #161616;  /* Hover/active level */
+  --bg-elevated:        #1a1a1a;  /* Button base */
+  
+  /* The Border (Linear's Signature) */
+  --border-base:        rgba(255, 255, 255, 0.08);
+  --border-hover:       rgba(255, 255, 255, 0.1);
+  --border-strong:      rgba(255, 255, 255, 0.3);
+  
+  /* The Gradient Mist — Subtle Top-Down Glow */
+  --gradient-mist:      linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+  
+  /* Typography Precision */
+  --text-primary:       #eeeeee;
+  --text-secondary:     #888888;
+  --text-tertiary:      #555555;
+  
+  /* Linear Purple & Status Colors */
+  --linear-purple:      #5e6ad2;
+  --status-ok:          #34d399;   /* Green dot for connected */
+  --status-denied:      #f87171;   /* Red for denied */
+  --status-warning:     #fbbf24;   /* Yellow for unknown */
+  
+  /* Spacing & Rhythm */
+  --radius:             4px;
+  --transition:         120ms ease;
+  
+  /* Typography */
+  --font-primary:       'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:          'JetBrains Mono', 'Geist Mono', monospace;
 }
 
-*,*::before,*::after{box-sizing:border-box;}
-html,body,[data-testid="stAppViewContainer"],[data-testid="stMain"],.main,.block-container{
-  background:var(--bg-base) !important; color:var(--text-primary) !important;
-  font-family:var(--font) !important; -webkit-font-smoothing:antialiased;
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL RESETS & BASE STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Nebula cosmic background — layered radial gradients */
-[data-testid="stAppViewContainer"]{
-  background:
-    radial-gradient(ellipse 60% 40% at 75% 15%, rgba(120,40,200,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 35% at 20% 75%, rgba(60,20,140,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(40,10,80,0.08) 0%, transparent 70%),
-    #03020a !important;
+html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, .block-container {
+  background: var(--bg-workspace) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-primary) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.block-container{padding:2rem 2.5rem 3rem !important; max-width:1440px !important;}
-#MainMenu,footer,header{visibility:hidden !important;}
-[data-testid="stToolbar"],[data-testid="stSidebar"],section[data-testid="stSidebar"],
-.stDeployButton,[data-testid="collapsedControl"]{display:none !important;}
-::-webkit-scrollbar{width:3px;} ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(176,106,255,0.20);border-radius:99px;}
-[data-testid="stHorizontalBlock"]{gap:1.5rem !important;}
-
-/* ── Keyframes ── */
-@keyframes fade-up     {from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-@keyframes fade-in     {from{opacity:0;}to{opacity:1;}}
-@keyframes spin        {to{transform:rotate(360deg);}}
-@keyframes bar-rise    {from{transform:scaleY(0);}to{transform:scaleY(1);}}
-
-/* Pulsar — rhythmic like a spinning neutron star */
-@keyframes pulsar {
-  0%   {box-shadow:0 0 0 0 rgba(176,106,255,0.7);}
-  50%  {box-shadow:0 0 0 6px rgba(176,106,255,0.1);}
-  100% {box-shadow:0 0 0 10px rgba(176,106,255,0);}
+/* Clean canvas - no gradients, pure flat darkness */
+[data-testid="stAppViewContainer"] {
+  background: var(--bg-workspace) !important;
 }
 
-/* Stellar rotation on brand icon */
-@keyframes stellar-spin {
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
+.block-container {
+  padding: 0 !important;
+  max-width: 100% !important;
 }
 
-/* Warp-speed reveal — entries slide in fast */
-@keyframes warp-in {
-  from{opacity:0; transform:translateY(8px) scale(0.97);}
-  to{opacity:1; transform:translateY(0) scale(1);}
+/* Hide Streamlit chrome */
+#MainMenu, footer, header {
+  visibility: hidden !important;
 }
 
-/* Nebula shimmer on brand name */
-@keyframes nebula {
-  0%,100%{color:#b06aff;}
-  33%{color:#d090ff;}
-  66%{color:#8840e0;}
+[data-testid="stToolbar"],
+[data-testid="stSidebar"],
+section[data-testid="stSidebar"],
+.stDeployButton,
+[data-testid="collapsedControl"] {
+  display: none !important;
 }
 
-/* Twinkling star field in background (pseudo-star dots via text-shadow) */
-@keyframes twinkle {
-  0%,100%{opacity:0.3;} 50%{opacity:1;}
+/* Linear-style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* ── NAV ── */
-.aura-nav{display:flex;align-items:center;justify-content:space-between;padding-bottom:1.8rem;border-bottom:0.5px solid var(--border-subtle);margin-bottom:2.5rem;animation:fade-in var(--dur-slow) var(--ease) both;}
-.aura-brand{display:flex;align-items:baseline;gap:0.8rem;}
-.brand-star{font-size:0.9rem;animation:stellar-spin 8s linear infinite;display:inline-block;}
-.aura-brand-name{font-size:1.1rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;animation:nebula 8s ease-in-out infinite;}
-.aura-brand-sep{color:var(--border-moderate);font-weight:300;font-size:1rem;}
-.aura-brand-sub{font-size:0.73rem;color:var(--text-tertiary);letter-spacing:0.05em;}
-.aura-nav-right{display:flex;align-items:center;gap:1.4rem;}
-.live-pill{display:flex;align-items:center;gap:0.45rem;background:var(--status-ok-dim);border:0.5px solid rgba(255,209,102,0.22);border-radius:99px;padding:0.28rem 0.75rem;font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--status-ok);}
-.live-pill.offline{background:var(--status-unknown-dim);border-color:rgba(58,40,96,0.3);color:var(--text-secondary);}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulsar 2.4s ease-out infinite;}
-.live-pill.offline .live-dot{background:var(--status-unknown);animation:none;}
-.nav-ts{font-size:0.7rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/* ── STAT CARDS ── */
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem;}
-.stat-card{background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:var(--radius-xl);padding:1.6rem 1.5rem 1.3rem;backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);position:relative;overflow:hidden;cursor:default;transition:background var(--dur-base) var(--ease),transform var(--dur-base) var(--ease-warp),border-color var(--dur-base) var(--ease);animation:fade-up var(--dur-slow) var(--ease) both;}
-.stat-card:nth-child(1){animation-delay:0.05s;} .stat-card:nth-child(2){animation-delay:0.10s;} .stat-card:nth-child(3){animation-delay:0.15s;}
-.stat-card:hover{background:var(--bg-card-hover);border-color:var(--border-moderate);transform:translateY(-3px);box-shadow:var(--accent-glow);}
-/* event horizon highlight line */
-.stat-card::before{content:'';position:absolute;top:0;left:8%;right:8%;height:0.5px;background:linear-gradient(90deg,transparent,rgba(176,106,255,0.45) 30%,rgba(220,160,255,0.45) 70%,transparent);}
-/* subtle nebula glow at corner */
-.stat-card::after{content:'';position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(120,60,200,0.08) 0%,transparent 70%);}
-.stat-icon{font-size:1rem;margin-bottom:0.9rem;opacity:0.5;}
-.stat-label{font-size:0.66rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.5rem;}
-.stat-value{font-size:2.8rem;font-weight:700;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums;}
-.stat-value.clr-accent{color:var(--accent);}
-.stat-value.clr-ok{color:var(--status-ok);}
-.stat-note{margin-top:0.55rem;font-size:0.66rem;color:var(--text-tertiary);}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
 
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.9rem;}
-.sec-label{font-size:0.68rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);}
-.sec-count{font-size:0.66rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
 
-/* ── LOG FEED — warp speed reveal ── */
-.log-feed{display:flex;flex-direction:column;gap:0.45rem;}
-.log-capsule{display:flex;align-items:center;gap:0.9rem;background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:var(--radius-lg);padding:0.85rem 1rem;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease);animation:warp-in var(--dur-base) var(--ease-warp) both;position:relative;overflow:hidden;}
-.log-capsule::before{content:'';position:absolute;top:0;left:0;right:0;height:0.5px;background:linear-gradient(90deg,transparent,rgba(176,106,255,0.16),transparent);}
-.log-capsule:hover{background:var(--bg-card-hover);border-color:var(--border-moderate);}
-.log-capsule:nth-child(1){animation-delay:0.03s;} .log-capsule:nth-child(2){animation-delay:0.07s;}
-.log-capsule:nth-child(3){animation-delay:0.11s;} .log-capsule:nth-child(4){animation-delay:0.15s;}
-.log-capsule:nth-child(5){animation-delay:0.19s;} .log-capsule:nth-child(n+6){animation-delay:0.22s;}
-.log-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:600;flex-shrink:0;background:rgba(176,106,255,0.10);border:0.5px solid rgba(176,106,255,0.22);color:var(--accent);}
-.log-body{flex:1;min-width:0;}
-.log-name{font-size:0.85rem;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.log-uid{font-size:0.65rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;margin-top:0.15rem;}
-.log-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;}
-.log-time{font-size:0.65rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
-.pill{display:inline-flex;align-items:center;gap:0.28rem;padding:0.18rem 0.55rem;border-radius:99px;font-size:0.6rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;}
-.pill::before{content:'';width:4px;height:4px;border-radius:50%;}
-.pill-ok{background:var(--status-ok-dim);color:var(--status-ok);border:0.5px solid rgba(255,209,102,0.28);}
-.pill-ok::before{background:var(--status-ok);}
-.pill-denied{background:var(--status-denied-dim);color:var(--status-denied);border:0.5px solid rgba(255,69,96,0.28);}
-.pill-denied::before{background:var(--status-denied);}
-.pill-unknown{background:var(--status-unknown-dim);color:#6050a0;border:0.5px solid rgba(58,40,96,0.4);}
-.pill-unknown::before{background:#3a2860;}
+/* Remove default Streamlit gaps */
+[data-testid="stHorizontalBlock"] {
+  gap: 0 !important;
+}
 
-.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem;}
-.loading-ring{width:26px;height:26px;border:1.5px solid var(--border-subtle);border-top-color:var(--accent);border-radius:50%;animation:spin 1.2s linear infinite;}
-.loading-txt{font-size:0.75rem;color:var(--text-tertiary);letter-spacing:0.06em;}
+[data-testid="column"] {
+  padding: 0 !important;
+}
 
-.panel{background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:var(--radius-xl);padding:1.3rem 1.2rem;backdrop-filter:blur(30px) saturate(200%);-webkit-backdrop-filter:blur(30px) saturate(200%);margin-bottom:1rem;position:relative;overflow:hidden;animation:fade-up var(--dur-slow) var(--ease) 0.12s both;}
-.panel::before{content:'';position:absolute;top:0;left:12%;right:12%;height:0.5px;background:linear-gradient(90deg,transparent,rgba(176,106,255,0.28) 40%,rgba(220,160,255,0.28) 60%,transparent);}
+/* ═══════════════════════════════════════════════════════════
+   THE NAVIGATION BAR — SLIM, FIXED-HEIGHT HEADER (48px)
+   ═══════════════════════════════════════════════════════════ */
 
-.bar-chart-wrap{display:flex;align-items:flex-end;gap:4px;height:68px;margin-top:0.9rem;padding-bottom:4px;}
-.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.bar-fill{width:100%;border-radius:3px 3px 0 0;background:rgba(176,106,255,0.12);transform-origin:bottom;animation:bar-rise var(--dur-slow) var(--ease) both;min-height:3px;}
-.bar-fill.active{background:var(--accent);opacity:0.75;}
-.bar-tick{font-size:0.5rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+.linear-nav {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-base);
+  background: var(--bg-workspace);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 
-.mini-list{display:flex;flex-direction:column;margin-top:0.75rem;}
-.mini-row{display:flex;align-items:center;gap:0.65rem;padding:0.45rem 0;border-bottom:0.5px solid var(--border-subtle);}
-.mini-row:last-child{border-bottom:none;}
-.mini-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-.mini-dot.ok{background:var(--status-ok);} .mini-dot.denied{background:var(--status-denied);} .mini-dot.unknown{background:#3a2860;}
-.mini-name{flex:1;font-size:0.77rem;font-weight:500;color:var(--text-primary);}
-.mini-time{font-size:0.63rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+/* Breadcrumb Navigation */
+.linear-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
 
-.alert-banner{display:flex;align-items:center;gap:0.7rem;background:rgba(176,106,255,0.04);border:0.5px solid var(--border-subtle);border-radius:var(--radius-md);padding:0.65rem 1rem;margin-bottom:2rem;font-size:0.71rem;color:var(--text-secondary);animation:fade-up var(--dur-base) var(--ease) both;}
+.breadcrumb-separator {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
 
-div[data-testid="stSelectbox"] label{font-family:var(--font) !important;font-size:0.66rem !important;font-weight:500 !important;letter-spacing:0.1em !important;text-transform:uppercase !important;color:var(--text-secondary) !important;}
-div[data-testid="stSelectbox"] > div > div{background:var(--bg-input) !important;border:0.5px solid var(--border-moderate) !important;border-radius:var(--radius-sm) !important;color:var(--text-primary) !important;font-family:var(--font) !important;font-size:0.82rem !important;}
-div[data-testid="stButton"] > button{width:100% !important;background:rgba(176,106,255,0.06) !important;border:0.5px solid var(--border-moderate) !important;color:var(--accent) !important;font-family:var(--font) !important;font-size:0.77rem !important;font-weight:500 !important;letter-spacing:0.06em !important;border-radius:var(--radius-sm) !important;padding:0.58rem 1rem !important;margin-top:0.5rem !important;transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease) !important;}
-div[data-testid="stButton"] > button:hover{background:rgba(176,106,255,0.12) !important;border-color:var(--border-strong) !important;}
-div[data-testid="stButton"] > button:active{transform:scale(0.98) !important;}
+.breadcrumb-item {
+  color: var(--text-secondary);
+  transition: color var(--transition);
+}
 
-.aura-footer{margin-top:3rem;padding-top:1.2rem;border-top:0.5px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;}
-.footer-l,.footer-r{font-size:0.63rem;color:var(--text-tertiary);letter-spacing:0.05em;}
+.breadcrumb-item:last-child {
+  color: var(--text-primary);
+}
+
+.breadcrumb-item:hover {
+  color: var(--text-primary);
+}
+
+/* Connection Status Pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-base);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-ok);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-pill.offline .status-dot {
+  background: var(--text-tertiary);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE ISSUE-LIST FEED — LINEAR'S SIGNATURE ROW DESIGN
+   ═══════════════════════════════════════════════════════════ */
+
+.linear-content {
+  display: flex;
+  min-height: calc(100vh - 48px);
+}
+
+.linear-main {
+  flex: 1;
+  border-right: 1px solid var(--border-base);
+}
+
+.linear-sidebar {
+  width: 320px;
+  background: var(--bg-workspace);
+}
+
+/* Section Header */
+.section-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-base);
+  background: var(--bg-workspace);
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.section-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* Log Feed Container */
+.log-feed {
+  background: var(--bg-workspace);
+}
+
+/* Individual Log Row (40px height) */
+.log-row {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-workspace);
+  transition: background var(--transition);
+  cursor: pointer;
+  animation: row-appear 0.2s ease;
+}
+
+.log-row:hover {
+  background: var(--bg-overlay);
+}
+
+@keyframes row-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scan Animation — 1px horizontal line moving top-to-bottom */
+.log-row.scanning::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--linear-purple), transparent);
+  animation: scan-line 1s ease-in-out;
+}
+
+@keyframes scan-line {
+  from { top: 0; opacity: 0; }
+  50% { opacity: 1; }
+  to { top: 100%; opacity: 0; }
+}
+
+/* Avatar Circle */
+.log-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* Name & UID */
+.log-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.log-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-uid {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* Timestamp */
+.log-timestamp {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* Status Badge */
+.log-status {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius);
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.log-status.access {
+  color: var(--status-ok);
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+.log-status.denied {
+  color: var(--status-denied);
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+.log-status.unknown {
+  color: var(--status-warning);
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE SIDEBAR WIDGETS — COMMAND MENU STYLING
+   ═══════════════════════════════════════════════════════════ */
+
+.sidebar-panel {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.sidebar-panel:last-child {
+  border-bottom: none;
+}
+
+.panel-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* Stats Cards (Top Row) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.stat-card {
+  padding: 16px;
+  background: var(--bg-surface);
+  background-image: var(--gradient-mist);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius);
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Hourly Activity Chart — Minimalist Sparkline */
+.activity-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 60px;
+  margin-top: 12px;
+}
+
+.activity-bar {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-base);
+  border-radius: 2px;
+  transition: all var(--transition);
+  position: relative;
+  min-height: 4px;
+}
+
+.activity-bar.active {
+  background: var(--linear-purple);
+  border-color: var(--linear-purple);
+}
+
+.activity-bar:hover {
+  background: var(--bg-overlay);
+  border-color: var(--border-strong);
+}
+
+.activity-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* Recent Scans List */
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.recent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.recent-dot.ok {
+  background: var(--status-ok);
+}
+
+.recent-dot.denied {
+  background: var(--status-denied);
+}
+
+.recent-dot.unknown {
+  background: var(--status-warning);
+}
+
+.recent-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.recent-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRECISION BUTTONS — LINEAR STYLE
+   ═══════════════════════════════════════════════════════════ */
+
+/* Streamlit Button Override */
+div[data-testid="stButton"] > button {
+  width: 100% !important;
+  height: 32px !important;
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-base) !important;
+  border-radius: var(--radius) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-primary) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 0 12px !important;
+  transition: all var(--transition) !important;
+  cursor: pointer !important;
+}
+
+div[data-testid="stButton"] > button:hover {
+  background: var(--bg-overlay) !important;
+  border-color: var(--border-strong) !important;
+}
+
+div[data-testid="stButton"] > button:active {
+  transform: scale(0.98) !important;
+}
+
+/* Streamlit Selectbox Override */
+div[data-testid="stSelectbox"] > label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 8px !important;
+}
+
+div[data-testid="stSelectbox"] > div > div {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-base) !important;
+  border-radius: var(--radius) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-primary) !important;
+  font-size: 12px !important;
+  transition: all var(--transition) !important;
+}
+
+div[data-testid="stSelectbox"] > div > div:hover {
+  border-color: var(--border-strong) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOADING & EMPTY STATES
+   ═══════════════════════════════════════════════════════════ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  color: var(--text-tertiary);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.empty-text {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUT TAGS
+   ═══════════════════════════════════════════════════════════ */
+
+.kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #333333;
+  border: 1px solid var(--border-base);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+
+.linear-footer {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-top: 1px solid var(--border-base);
+  background: var(--bg-workspace);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
 </style>
 """
 
@@ -253,103 +680,251 @@ def fetch_logs_demo(n=50):
     rows=[{"timestamp":now-timedelta(minutes=random.randint(0,480),seconds=random.randint(0,59)),"name":_NAMES[random.randint(0,11)],"uid":_UIDS[random.randint(0,11)],"status":random.choice(_STATS)} for _ in range(n)]
     return pd.DataFrame(rows).sort_values("timestamp",ascending=False).reset_index(drop=True)
 
-def compute_stats(df,start_time):
-    if df.empty: return 0,0,"00:00:00"
-    today=datetime.utcnow().date(); ts=df["timestamp"]
+def compute_stats(df):
+    if df.empty: return 0, 0, 0
+    today = datetime.utcnow().date()
+    ts = df["timestamp"]
     if pd.api.types.is_datetime64_any_dtype(ts):
-        try: ts_n=ts.dt.tz_convert(None)
-        except: ts_n=ts
-        mask=ts_n.dt.date==today
-    else: mask=pd.Series([True]*len(df))
-    t=df[mask]; up=int((datetime.utcnow()-start_time).total_seconds())
-    h,r=divmod(up,3600); m,s=divmod(r,60)
-    return len(t),t["name"].nunique(),f"{h:02d}:{m:02d}:{s:02d}"
+        try: ts_n = ts.dt.tz_convert(None)
+        except: ts_n = ts
+        mask = ts_n.dt.date == today
+    else: mask = pd.Series([True]*len(df))
+    today_df = df[mask]
+    return len(today_df), today_df["name"].nunique(), len(df)
 
 def build_hourly(df):
-    now=datetime.utcnow(); labels=[(now-timedelta(hours=11-i)).strftime("%H") for i in range(12)]; slots=[0]*12
-    if df.empty: return list(zip(labels,slots))
-    ts=df["timestamp"]
-    if not pd.api.types.is_datetime64_any_dtype(ts): return list(zip(labels,slots))
-    try: ts=ts.dt.tz_convert(None)
+    now = datetime.utcnow()
+    labels = [(now - timedelta(hours=11-i)).strftime("%H") for i in range(12)]
+    slots = [0] * 12
+    if df.empty: return list(zip(labels, slots))
+    ts = df["timestamp"]
+    if not pd.api.types.is_datetime64_any_dtype(ts): return list(zip(labels, slots))
+    try: ts = ts.dt.tz_convert(None)
     except: pass
     for i in range(12):
-        s0=(now-timedelta(hours=11-i)).replace(minute=0,second=0,microsecond=0); s1=s0+timedelta(hours=1)
-        slots[i]=int(((ts>=s0)&(ts<s1)).sum())
-    return list(zip(labels,slots))
-
-def pill_html(status):
-    s=str(status).upper()
-    if s in("ACCESS","GRANTED","OK"): return '<span class="pill pill-ok">Access</span>'
-    if s in("DENIED","REJECTED"):     return '<span class="pill pill-denied">Denied</span>'
-    return f'<span class="pill pill-unknown">{s.title()}</span>'
-
-def dot_cls(status):
-    s=str(status).upper()
-    if s in("ACCESS","GRANTED","OK"): return "ok"
-    if s in("DENIED","REJECTED"):     return "denied"
-    return "unknown"
+        s0 = (now - timedelta(hours=11-i)).replace(minute=0, second=0, microsecond=0)
+        s1 = s0 + timedelta(hours=1)
+        slots[i] = int(((ts >= s0) & (ts < s1)).sum())
+    return list(zip(labels, slots))
 
 def initials(name):
-    p=name.strip().split()
-    return (p[0][0]+p[-1][0]).upper() if len(p)>=2 else name[:2].upper()
+    p = name.strip().split()
+    return (p[0][0] + p[-1][0]).upper() if len(p) >= 2 else name[:2].upper()
 
-def render_nav(is_live,ts):
-    pc="live-pill" if is_live else "live-pill offline"; pt="Live" if is_live else "Demo"
-    st.markdown(f'<div class="aura-nav"><div class="aura-brand"><span class="brand-star">✦</span><span class="aura-brand-name">Void</span><span class="aura-brand-sep">/</span><span class="aura-brand-sub">RFID Attendance Intelligence · Space Edition</span></div><div class="aura-nav-right"><div class="{pc}"><div class="live-dot"></div>{pt}</div><span class="nav-ts">{ts} UTC</span></div></div>',unsafe_allow_html=True)
+def status_class(status):
+    s = str(status).upper()
+    if s in ("ACCESS", "GRANTED", "OK"): return "access"
+    if s in ("DENIED", "REJECTED"): return "denied"
+    return "unknown"
 
-def render_stats(total,unique,uptime):
-    st.markdown(f'<div class="stat-row"><div class="stat-card"><div class="stat-icon">✦</div><div class="stat-label">Total Scans Today</div><div class="stat-value clr-accent">{total:,}</div><div class="stat-note">RFID events logged</div></div><div class="stat-card"><div class="stat-icon">◎</div><div class="stat-label">Students Present</div><div class="stat-value clr-ok">{unique:,}</div><div class="stat-note">Unique identities verified</div></div><div class="stat-card"><div class="stat-icon">⊛</div><div class="stat-label">System Uptime</div><div class="stat-value" style="font-size:2rem;letter-spacing:-0.02em;">{uptime}</div><div class="stat-note">hh : mm : ss continuous</div></div></div>',unsafe_allow_html=True)
+def status_text(status):
+    s = str(status).upper()
+    if s in ("ACCESS", "GRANTED", "OK"): return "Access"
+    if s in ("DENIED", "REJECTED"): return "Denied"
+    return s.title()
 
-def render_log_feed(df,max_rows=50):
+def render_nav(is_live):
+    status_class_name = "status-pill" if is_live else "status-pill offline"
+    status_text = "Connected" if is_live else "Demo Mode"
+    
+    st.markdown(f'''
+    <div class="linear-nav">
+        <div class="linear-breadcrumb">
+            <span class="breadcrumb-item">AURA</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item">ATTENDANCE</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item">LIVE FEED</span>
+        </div>
+        <div class="{status_class_name}">
+            <div class="status-dot"></div>
+            <span>{status_text}</span>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+def render_stats_grid(total_today, unique_today, total_all):
+    st.markdown(f'''
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{total_today:,}</div>
+            <div class="stat-label">Today's Scans</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{unique_today:,}</div>
+            <div class="stat-label">Unique Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{total_all:,}</div>
+            <div class="stat-label">Total Events</div>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+def render_log_feed(df, max_rows=50):
     if df.empty:
-        st.markdown('<div class="loading-state"><div class="loading-ring"></div><div class="loading-txt">Awaiting RFID events</div></div>',unsafe_allow_html=True); return
-    caps=""
-    for _,row in df.head(max_rows).iterrows():
-        ts=row["timestamp"]; d=ts.strftime("%b %d") if hasattr(ts,"strftime") else ""; t=ts.strftime("%H:%M:%S") if hasattr(ts,"strftime") else str(ts)
-        caps+=f'<div class="log-capsule"><div class="log-avatar">{initials(str(row["name"]))}</div><div class="log-body"><div class="log-name">{row["name"]}</div><div class="log-uid">{row["uid"]}</div></div><div class="log-right"><span class="log-time">{d} · {t}</span>{pill_html(row["status"])}</div></div>'
-    st.markdown(f'<div class="log-feed">{caps}</div>',unsafe_allow_html=True)
+        st.markdown('''
+        <div class="empty-state">
+            <div class="empty-icon">◆</div>
+            <div class="empty-text">Awaiting RFID events</div>
+        </div>
+        ''', unsafe_allow_html=True)
+        return
+    
+    rows_html = ""
+    for idx, row in df.head(max_rows).iterrows():
+        ts = row["timestamp"]
+        timestamp_str = ts.strftime("%b %d · %H:%M:%S") if hasattr(ts, "strftime") else str(ts)
+        
+        status_cls = status_class(row["status"])
+        status_txt = status_text(row["status"])
+        
+        rows_html += f'''
+        <div class="log-row">
+            <div class="log-avatar">{initials(str(row["name"]))}</div>
+            <div class="log-info">
+                <div class="log-name">{row["name"]}</div>
+                <div class="log-uid">{row["uid"]}</div>
+            </div>
+            <div class="log-timestamp">{timestamp_str}</div>
+            <div class="log-status {status_cls}">{status_txt}</div>
+        </div>
+        '''
+    
+    st.markdown(f'<div class="log-feed">{rows_html}</div>', unsafe_allow_html=True)
 
-def render_chart(chart_data):
-    max_v=max(v for _,v in chart_data) or 1; now_h=datetime.utcnow().strftime("%H"); bars=""
-    for label,val in chart_data:
-        pct=max(4,int((val/max_v)*100)); cls="bar-fill active" if label==now_h else "bar-fill"
-        bars+=f'<div class="bar-col"><div class="{cls}" style="height:{pct}%;"></div><div class="bar-tick">{label}</div></div>'
-    st.markdown(f'<div class="bar-chart-wrap">{bars}</div>',unsafe_allow_html=True)
+def render_hourly_chart(chart_data):
+    max_val = max(v for _, v in chart_data) or 1
+    now_h = datetime.utcnow().strftime("%H")
+    
+    bars_html = ""
+    for label, val in chart_data:
+        height_pct = max(5, int((val / max_val) * 100))
+        active_class = " active" if label == now_h else ""
+        
+        bars_html += f'''
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+            <div class="activity-bar{active_class}" style="height: {height_pct}%;"></div>
+            <div class="activity-label">{label}</div>
+        </div>
+        '''
+    
+    st.markdown(f'<div class="activity-chart">{bars_html}</div>', unsafe_allow_html=True)
 
-def render_mini_list(df,n=6):
+def render_recent_list(df, n=6):
     if df.empty: return
-    rows=""
-    for _,row in df.head(n).iterrows():
-        ts=row["timestamp"]; t=ts.strftime("%H:%M") if hasattr(ts,"strftime") else "—"
-        rows+=f'<div class="mini-row"><div class="mini-dot {dot_cls(row["status"])}"></div><div class="mini-name">{row["name"]}</div><div class="mini-time">{t}</div></div>'
-    st.markdown(f'<div class="mini-list">{rows}</div>',unsafe_allow_html=True)
+    
+    items_html = ""
+    for _, row in df.head(n).iterrows():
+        ts = row["timestamp"]
+        time_str = ts.strftime("%H:%M") if hasattr(ts, "strftime") else "—"
+        
+        dot_class = status_class(row["status"])
+        if dot_class == "access": dot_class = "ok"
+        
+        items_html += f'''
+        <div class="recent-item">
+            <div class="recent-dot {dot_class}"></div>
+            <div class="recent-name">{row["name"]}</div>
+            <div class="recent-time">{time_str}</div>
+        </div>
+        '''
+    
+    st.markdown(f'<div class="recent-list">{items_html}</div>', unsafe_allow_html=True)
 
-if "start_time" not in st.session_state: st.session_state.start_time=datetime.utcnow()
-if "max_rows"   not in st.session_state: st.session_state.max_rows=50
+if "max_rows" not in st.session_state:
+    st.session_state.max_rows = 50
 
 def main():
-    st.markdown(THEME_CSS,unsafe_allow_html=True)
-    db_ref,firebase_error=init_firebase(); is_live=db_ref is not None
-    df=fetch_logs_firebase(db_ref,limit=200) if is_live else fetch_logs_demo(n=60)
-    refresh_ts=datetime.utcnow().strftime("%Y-%m-%d  %H:%M:%S")
-    render_nav(is_live,refresh_ts)
-    if firebase_error and not is_live:
-        st.markdown(f'<div class="alert-banner"><span>✦</span> Firebase unreachable — {firebase_error} — Demo data active</div>',unsafe_allow_html=True)
-    total,unique,uptime=compute_stats(df,st.session_state.start_time); render_stats(total,unique,uptime)
-    col_main,col_side=st.columns([5,2],gap="large")
+    st.markdown(LINEAR_CSS, unsafe_allow_html=True)
+    
+    # Initialize Firebase
+    db_ref, firebase_error = init_firebase()
+    is_live = db_ref is not None
+    
+    # Fetch data
+    df = fetch_logs_firebase(db_ref, limit=200) if is_live else fetch_logs_demo(n=60)
+    
+    # Render navigation
+    render_nav(is_live)
+    
+    # Compute stats
+    total_today, unique_today, total_all = compute_stats(df)
+    
+    # Render stats grid
+    render_stats_grid(total_today, unique_today, total_all)
+    
+    # Main layout: 4:1.5 split
+    st.markdown('<div class="linear-content">', unsafe_allow_html=True)
+    
+    col_main, col_side = st.columns([4, 1.5], gap="medium")
+    
     with col_main:
-        st.markdown(f'<div class="sec-hdr"><span class="sec-label">Access Log</span><span class="sec-count">{min(len(df),st.session_state.max_rows)} entries</span></div>',unsafe_allow_html=True)
-        render_log_feed(df,max_rows=st.session_state.max_rows)
+        st.markdown('<div class="linear-main">', unsafe_allow_html=True)
+        
+        # Section header
+        st.markdown(f'''
+        <div class="section-header">
+            <div class="section-label">Access Log</div>
+            <div class="section-count">{min(len(df), st.session_state.max_rows)} entries</div>
+        </div>
+        ''', unsafe_allow_html=True)
+        
+        # Log feed
+        render_log_feed(df, max_rows=st.session_state.max_rows)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
     with col_side:
-        st.markdown('<div class="panel"><div class="sec-label">Hourly Activity</div>',unsafe_allow_html=True)
-        render_chart(build_hourly(df)); st.markdown('</div>',unsafe_allow_html=True)
-        st.markdown('<div class="panel"><div class="sec-label">Recent Scans</div>',unsafe_allow_html=True)
-        render_mini_list(df,n=6); st.markdown('</div>',unsafe_allow_html=True)
-        st.markdown('<div class="panel"><div class="sec-label" style="margin-bottom:0.75rem;">Controls</div>',unsafe_allow_html=True)
-        st.session_state.max_rows=st.selectbox("Visible entries",[25,50,100,200],index=1,key="row_select")
-        if st.button("↺  Refresh Now"): (fetch_logs_firebase if is_live else fetch_logs_demo).clear(); st.rerun()
-        st.markdown('</div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="aura-footer"><span class="footer-l">Void · Space Edition · Build 3.4.0</span><span class="footer-r">Last sync: {refresh_ts} UTC</span></div>',unsafe_allow_html=True)
-    time.sleep(AUTO_REFRESH_SECONDS); st.rerun()
+        st.markdown('<div class="linear-sidebar">', unsafe_allow_html=True)
+        
+        # Hourly Activity Panel
+        st.markdown('<div class="sidebar-panel">', unsafe_allow_html=True)
+        st.markdown('<div class="panel-label">Hourly Activity</div>', unsafe_allow_html=True)
+        render_hourly_chart(build_hourly(df))
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Recent Scans Panel
+        st.markdown('<div class="sidebar-panel">', unsafe_allow_html=True)
+        st.markdown('<div class="panel-label">Recent Scans</div>', unsafe_allow_html=True)
+        render_recent_list(df, n=6)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Controls Panel
+        st.markdown('<div class="sidebar-panel">', unsafe_allow_html=True)
+        st.markdown('<div class="panel-label">Controls</div>', unsafe_allow_html=True)
+        
+        st.session_state.max_rows = st.selectbox(
+            "Visible entries",
+            [25, 50, 100, 200],
+            index=1,
+            key="row_select"
+        )
+        
+        if st.button("↻ Refresh Now"):
+            if is_live:
+                fetch_logs_firebase.clear()
+            else:
+                fetch_logs_demo.clear()
+            st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Footer
+    refresh_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    st.markdown(f'''
+    <div class="linear-footer">
+        <span>Aura · Linear Edition · v4.0.0</span>
+        <span>Last sync: {refresh_ts} UTC</span>
+    </div>
+    ''', unsafe_allow_html=True)
+    
+    # Auto-refresh
+    time.sleep(AUTO_REFRESH_SECONDS)
+    st.rerun()
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
